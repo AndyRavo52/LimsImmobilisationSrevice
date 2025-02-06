@@ -1,6 +1,6 @@
 ﻿using LimsImmobilisationService.Dtos;
 using LimsImmobilisationService.Services;
-using LimsImmobilisationService.Utils;
+using LimsUtils.Api;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
