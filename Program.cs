@@ -15,6 +15,16 @@ builder.Services.AddScoped<IImmobilisationService, ImmobilisationService>();
 // Enregistre le service MarqueService
 builder.Services.AddScoped<IMarqueService, MarqueService>();
 
+// Enregistre le service FournisseurService
+builder.Services.AddScoped<IFournisseurService, FournisseurService>();
+
+// Enregistre le service LocalisationService
+builder.Services.AddScoped<ILocalisationService, LocalisationService>();
+
+
+
+
+
 // Add services to the container.
 
 builder.Services.AddControllers();
