@@ -23,5 +23,9 @@ namespace LimsImmobilisationService.Services
 
         // Supprime une immobilisation
         Task<bool> DeleteImmobilisationAsync(int id);
+        // Recherche des immobilisations en fonction d'un terme (sur la désignation, par exemple)
+        Task<IEnumerable<ImmobilisationDto>> SearchImmobilisationsAsync(string searchTerm);
+
+        
     }
 }

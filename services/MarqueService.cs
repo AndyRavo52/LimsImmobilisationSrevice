@@ -26,17 +26,17 @@ namespace LimsImmobilisationService.Services
         }
 
         // Récupère une liste paginée de marques
-        public async Task<IEnumerable<MarqueDto>> GetMarquesAsync(int pageIndex, int pageSize)
-        {
-            var marques = await _context.Marques
-                .OrderBy(m => m.Designation) // Trie par désignation
-                .Skip((pageIndex - 1) * pageSize) // Saute les éléments des pages précédentes
-                .Take(pageSize) // Prend un nombre limité d'éléments
-                .ToListAsync();
+       public async Task<IEnumerable<MarqueDto>> GetMarquesAsync(int pageIndex, int pageSize)
+{
+    var marques = await _context.Marques
+        .OrderByDescending(m => m.IdMarque) // Trie du plus récent au plus ancien
+        .Skip((pageIndex - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
 
-            // Convertit les entités en DTOs
-            return marques.Select(MarqueMapper.ToDto);
-        }
+    return marques.Select(MarqueMapper.ToDto);
+}
+
 
         // Récupère une marque par son ID
         public async Task<MarqueDto> GetMarqueByIdAsync(int id)

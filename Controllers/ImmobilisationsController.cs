@@ -2,6 +2,7 @@
 using LimsImmobilisationService.Services;
 using LimsUtils.Api;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -39,7 +40,7 @@ namespace LimsImmobilisationService.Controllers
         public async Task<ActionResult<ApiResponse>> GetImmobilisations(int position = 1, int pageSize = 10)
         {
             if (position < 1) position = 1; // Position minimale : 1
-            if (pageSize < 1) pageSize = 10; // PageSize minimal : 1, valeur par défaut : 10
+            if (pageSize < 1) pageSize = 10; // PageSize minimal : 1
 
             // Récupère les données paginées
             var immobilisations = await _immobilisationService.GetImmobilisationsAsync(position, pageSize);
@@ -64,31 +65,48 @@ namespace LimsImmobilisationService.Controllers
             });
         }
 
+        // Endpoint de recherche d'immobilisations
+        [HttpGet("search")]
+        public async Task<ActionResult<ApiResponse>> SearchImmobilisations([FromQuery] string searchTerm = "")
+        {
+            var results = await _immobilisationService.SearchImmobilisationsAsync(searchTerm);
+            return Ok(new ApiResponse
+            {
+                Data = results,
+                ViewBag = null,
+                IsSuccess = true,
+                Message = "Recherche effectuée avec succès.",
+                StatusCode = 200
+            });
+        }
+
         // Récupère une immobilisation par son ID
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse>> GetImmobilisation(int id)
         {
-            var immobilisation = await _immobilisationService.GetImmobilisationByIdAsync(id);
-            if (immobilisation == null)
+            try
+            {
+                var immobilisation = await _immobilisationService.GetImmobilisationByIdAsync(id);
+                return Ok(new ApiResponse
+                {
+                    Data = immobilisation,
+                    ViewBag = null,
+                    IsSuccess = true,
+                    Message = "Immobilisation retrieved successfully.",
+                    StatusCode = 200
+                });
+            }
+            catch (Exception ex)
             {
                 return NotFound(new ApiResponse
                 {
                     Data = null,
                     ViewBag = null,
                     IsSuccess = false,
-                    Message = "Immobilisation not found.",
+                    Message = ex.Message,
                     StatusCode = 404
                 });
             }
-
-            return Ok(new ApiResponse
-            {
-                Data = immobilisation,
-                ViewBag = null,
-                IsSuccess = true,
-                Message = "Immobilisation retrieved successfully.",
-                StatusCode = 200
-            });
         }
 
         // Crée une nouvelle immobilisation

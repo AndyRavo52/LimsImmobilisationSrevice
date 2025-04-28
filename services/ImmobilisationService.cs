@@ -3,6 +3,7 @@ using LimsImmobilisationService.Dtos;
 using LimsImmobilisationService.Mappers;
 using LimsImmobilisationService.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace LimsImmobilisationService.Services
         public async Task<IEnumerable<ImmobilisationDto>> GetImmobilisationsAsync(int pageIndex, int pageSize)
         {
             var immobilisations = await _context.Immobilisations
-                .OrderBy(i => i.Reference) // Trie par référence
+                .OrderByDescending(i => i.IdImmobilisation) // Trie par ID en ordre décroissant
                 .Skip((pageIndex - 1) * pageSize) // Saute les éléments des pages précédentes
                 .Take(pageSize) // Prend un nombre limité d'éléments
                 .ToListAsync();
@@ -109,6 +110,26 @@ namespace LimsImmobilisationService.Services
             await _context.SaveChangesAsync();
 
             return true; // Suppression réussie
+        }
+
+        // Recherche des immobilisations en fonction d'un terme (sur la désignation)
+        public async Task<IEnumerable<ImmobilisationDto>> SearchImmobilisationsAsync(string searchTerm)
+        {
+            var query = _context.Immobilisations
+                                .Include(i => i.Marque)
+                                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                // Vous pouvez adapter le critère de recherche (ici on cherche dans la désignation)
+                query = query.Where(i => EF.Functions.Like(i.Designation, $"%{searchTerm}%"));
+            }
+
+            var immobilisations = await query
+                .OrderBy(i => i.Reference)
+                .ToListAsync();
+
+            return immobilisations.Select(ImmobilisationMapper.ToDto);
         }
     }
 }
