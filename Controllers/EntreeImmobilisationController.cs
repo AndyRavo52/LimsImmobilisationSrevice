@@ -1,6 +1,6 @@
 ﻿using LimsImmobilisationService.Dtos;
 using LimsImmobilisationService.Services;
-using LimsUtils.Api; // Supposé existant, comme dans l'exemple
+using LimsUtils.Api;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -14,13 +14,11 @@ namespace LimsImmobilisationService.Controllers
     {
         private readonly IEntreeImmobilisationService _entreeImmobilisationService;
 
-        // Injection du service via le constructeur
         public EntreeImmobilisationController(IEntreeImmobilisationService entreeImmobilisationService)
         {
             _entreeImmobilisationService = entreeImmobilisationService;
         }
 
-        // Récupère le nombre total d'entrées d'immobilisations
         [HttpGet("total")]
         public async Task<ActionResult<ApiResponse>> GetTotalEntreeImmobilisations()
         {
@@ -35,7 +33,6 @@ namespace LimsImmobilisationService.Controllers
             });
         }
 
-        // Récupère une liste paginée d'entrées d'immobilisations
         [HttpGet]
         public async Task<ActionResult<ApiResponse>> GetEntreeImmobilisations(int position = 1, int pageSize = 5)
         {
@@ -62,7 +59,6 @@ namespace LimsImmobilisationService.Controllers
             });
         }
 
-        // Récupère une entrée d'immobilisation par son ID
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse>> GetEntreeImmobilisation(int id)
         {
@@ -85,13 +81,12 @@ namespace LimsImmobilisationService.Controllers
                     Data = null,
                     ViewBag = null,
                     IsSuccess = false,
-                    Message = ex.Message, // Utilise le message de l'exception (ex: "Entrée immobilisation non trouvée")
+                    Message = ex.Message,
                     StatusCode = 404
                 });
             }
         }
 
-        // Crée une nouvelle entrée d'immobilisation
         [HttpPost]
         public async Task<ActionResult<ApiResponse>> CreateEntreeImmobilisation([FromBody] EntreeImmobilisationDto entreeImmobilisationDto)
         {
@@ -106,19 +101,32 @@ namespace LimsImmobilisationService.Controllers
             });
         }
 
-
         [HttpGet("non-immatriculees")]
-public async Task<ActionResult<ApiResponse>> GetEntreeImmobilisationsNonImmatriculees()
-{
-    var entreeImmobilisations = await _entreeImmobilisationService.GetEntreeImmobilisationsNonImmatriculeesAsync();
-    return Ok(new ApiResponse
-    {
-        Data = entreeImmobilisations,
-        ViewBag = null,
-        IsSuccess = true,
-        Message = "Entrées d'immobilisations non immatriculées récupérées avec succès.",
-        StatusCode = 200
-    });
-}
+        public async Task<ActionResult<ApiResponse>> GetEntreeImmobilisationsNonImmatriculees()
+        {
+            var entreeImmobilisations = await _entreeImmobilisationService.GetEntreeImmobilisationsNonImmatriculeesAsync();
+            return Ok(new ApiResponse
+            {
+                Data = entreeImmobilisations,
+                ViewBag = null,
+                IsSuccess = true,
+                Message = "Entrées d'immobilisations non immatriculées récupérées avec succès.",
+                StatusCode = 200
+            });
+        }
+
+        [HttpGet("depenses/mois/{annee}")]
+        public async Task<ActionResult<ApiResponse>> GetDepensesParMois(int annee)
+        {
+            var depenses = await _entreeImmobilisationService.GetDepensesParMoisAsync(annee);
+            return Ok(new ApiResponse
+            {
+                Data = depenses,
+                ViewBag = null,
+                IsSuccess = true,
+                Message = "Dépenses des immobilisations par mois récupérées avec succès.",
+                StatusCode = 200
+            });
+        }
     }
 }

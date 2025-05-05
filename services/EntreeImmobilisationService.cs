@@ -2,7 +2,10 @@
 using LimsImmobilisationService.Dtos;
 using LimsImmobilisationService.Mappers;
 using Microsoft.EntityFrameworkCore;
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LimsImmobilisationService.Services
 {
@@ -59,19 +62,30 @@ namespace LimsImmobilisationService.Services
         }
 
         public async Task<IEnumerable<EntreeImmobilisationDto>> GetEntreeImmobilisationsNonImmatriculeesAsync()
-{
-    var immatriculeesIds = await _context.ImmobilisationImmatriculations
-        .Select(ip => ip.IdEntreeImmobilisation)
-        .ToListAsync();
+        {
+            var immatriculeesIds = await _context.ImmobilisationImmatriculations
+                .Select(ip => ip.IdEntreeImmobilisation)
+                .ToListAsync();
 
-    var entreeImmobilisations = await _context.EntreeImmobilisations
-        .Where(ei => !immatriculeesIds.Contains(ei.IdEntreeImmobilisation))
-        .Include(ei => ei.Immobilisation)
-        .ToListAsync();
+            var entreeImmobilisations = await _context.EntreeImmobilisations
+                .Where(ei => !immatriculeesIds.Contains(ei.IdEntreeImmobilisation))
+                .Include(ei => ei.Immobilisation)
+                .ToListAsync();
 
-    return entreeImmobilisations.Select(EntreeImmobilisationMapper.ToDto);
-}
+            return entreeImmobilisations.Select(EntreeImmobilisationMapper.ToDto);
+        }
 
-
+        public async Task<Dictionary<string, decimal>> GetDepensesParMoisAsync(int annee)
+        {
+            return await _context.EntreeImmobilisations
+                .Where(ei => ei.DateEntree.HasValue && ei.DateEntree.Value.Year == annee)
+                .GroupBy(ei => new { ei.DateEntree.Value.Year, ei.DateEntree.Value.Month })
+                .Select(g => new
+                {
+                    Periode = $"{g.Key.Year}-{g.Key.Month:D2}",
+                    Total = g.Sum(ei => ei.PrixAchat ?? 0)
+                })
+                .ToDictionaryAsync(x => x.Periode, x => x.Total);
+        }
     }
 }
