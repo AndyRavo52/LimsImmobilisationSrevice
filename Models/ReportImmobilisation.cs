@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LimsImmobilisationService.Models
 {
-    [Table("report_immobilisation")] // Nom de la table dans la base
+    [Table("Report_immobilisation")] // Nom de la table dans la base
     public class ReportImmobilisation
     {
         [Key]

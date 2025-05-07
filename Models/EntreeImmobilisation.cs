@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LimsImmobilisationService.Models
 {
-    [Table("entree_immobilisation")]
+    [Table("Entree_immobilisation")]
     public class EntreeImmobilisation
     {
         [Key]

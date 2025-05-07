@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LimsImmobilisationService.Models
 {
-    [Table("immobilisation_immatriculation")]
+    [Table("Immobilisation_immatriculation")]
     public class ImmobilisationImmatriculation
     {
         [Key]
