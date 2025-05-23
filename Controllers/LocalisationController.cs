@@ -96,6 +96,17 @@ namespace LimsImmobilisationService.Controllers
         public async Task<ActionResult<ApiResponse>> CreateLocalisation([FromBody] LocalisationDto localisationDto)
         {
             var createdLocalisation = await _localisationService.CreateLocalisationAsync(localisationDto);
+            if (createdLocalisation == null)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Data = null,
+                    ViewBag = null,
+                    IsSuccess = false,
+                    Message = "Erreur lors de la création de la localisation.",
+                    StatusCode = 400
+                });
+            }
             return CreatedAtAction(nameof(GetLocalisation), new { id = createdLocalisation.IdLocalisation }, new ApiResponse
             {
                 Data = createdLocalisation,

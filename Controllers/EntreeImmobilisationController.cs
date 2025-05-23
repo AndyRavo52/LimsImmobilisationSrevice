@@ -101,19 +101,32 @@ namespace LimsImmobilisationService.Controllers
             });
         }
 
-        [HttpGet("non-immatriculees")]
-        public async Task<ActionResult<ApiResponse>> GetEntreeImmobilisationsNonImmatriculees()
-        {
-            var entreeImmobilisations = await _entreeImmobilisationService.GetEntreeImmobilisationsNonImmatriculeesAsync();
-            return Ok(new ApiResponse
-            {
-                Data = entreeImmobilisations,
-                ViewBag = null,
-                IsSuccess = true,
-                Message = "Entrées d'immobilisations non immatriculées récupérées avec succès.",
-                StatusCode = 200
-            });
-        }
+        // [HttpGet("non-immatriculees")]
+        // public async Task<ActionResult<ApiResponse>> GetEntreeImmobilisationsNonImmatriculees()
+        // {
+        //     var entreeImmobilisations = await _entreeImmobilisationService.GetEntreeImmobilisationsNonImmatriculeesAsync();
+        //     return Ok(new ApiResponse
+        //     {
+        //         Data = entreeImmobilisations,
+        //         ViewBag = null,
+        //         IsSuccess = true,
+        //         Message = "Entrées d'immobilisations non immatriculées récupérées avec succès.",
+        //         StatusCode = 200
+        //     });
+        // }
+        [HttpGet("avec-reste")]
+public async Task<ActionResult<ApiResponse>> GetEntreeImmobilisationsAvecReste()
+{
+    var entreeImmobilisationsAvecReste = await _entreeImmobilisationService.GetEntreeImmobilisationsAvecImmatriculationsRestantesAsync();
+    return Ok(new ApiResponse
+    {
+        Data = entreeImmobilisationsAvecReste,
+        ViewBag = null,
+        IsSuccess = true,
+        Message = "Entrées d'immobilisations avec immatriculations restantes récupérées avec succès.",
+        StatusCode = 200
+    });
+}
 
         [HttpGet("depenses/mois/{annee}")]
         public async Task<ActionResult<ApiResponse>> GetDepensesParMois(int annee)

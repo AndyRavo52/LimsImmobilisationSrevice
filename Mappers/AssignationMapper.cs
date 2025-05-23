@@ -6,7 +6,7 @@ namespace LimsImmobilisationService.Mappers
 {
     public static class AssignationMapper
     {
-        public static AssignationDto ToDto(Assignation assignation)
+        public static AssignationDto? ToDto(Assignation? assignation)
         {
             if (assignation == null) return null;
 
@@ -17,13 +17,13 @@ namespace LimsImmobilisationService.Mappers
                 IdLocalisation = assignation.IdLocalisation,
                 IdImmobilisationPropre = assignation.IdImmobilisationPropre,
                 IdEmploye = assignation.IdEmploye,
-                Localisation = LocalisationMapper.ToDto(assignation.Localisation),
-                ImmobilisationImmatriculation = ImmobilisationImmatriculationMapper.ToDto(assignation.ImmobilisationImmatriculation),
-                Employe = EmployeMapper.ToDto(assignation.Employe) // Correction cruciale ici
+                Localisation = assignation.Localisation != null ? LocalisationMapper.ToDto(assignation.Localisation) : null,
+                ImmobilisationImmatriculation = assignation.ImmobilisationImmatriculation != null ? ImmobilisationImmatriculationMapper.ToDto(assignation.ImmobilisationImmatriculation) : null,
+                Employe = assignation.Employe != null ? EmployeMapper.ToDto(assignation.Employe) : null
             };
         }
 
-        public static Assignation ToEntity(AssignationDto assignationDto)
+        public static Assignation? ToEntity(AssignationDto? assignationDto)
         {
             if (assignationDto == null)
                 return null;
@@ -47,7 +47,7 @@ namespace LimsImmobilisationService.Mappers
             };
         }
 
-        public static Assignation ToEntitySimple(AssignationDto assignationDto)
+        public static Assignation? ToEntitySimple(AssignationDto? assignationDto)
         {
             if (assignationDto == null)
                 return null;

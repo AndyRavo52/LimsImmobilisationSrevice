@@ -34,44 +34,44 @@ namespace LimsImmobilisationService.Services
                 .Take(pageSize) // Prend un nombre limité d'éléments
                 .ToListAsync();
 
-            // Convertit les entités en DTOs
-            return localisations.Select(LocalisationMapper.ToDto);
+            // Convertit les entités en DTOs et filtre les nulls
+            return localisations.Select(LocalisationMapper.ToDto).Where(dto => dto != null)!;
         }
 
         // Récupère une localisation par son ID
-        public async Task<LocalisationDto> GetLocalisationByIdAsync(int id)
+        public async Task<LocalisationDto?> GetLocalisationByIdAsync(int id)
         {
             var localisation = await _context.Localisations.FindAsync(id);
             if (localisation == null)
             {
-                throw new Exception("Localisation non trouvée");
+                return null;
             }
 
             return LocalisationMapper.ToDto(localisation);
         }
 
         // Crée une nouvelle localisation
-        public async Task<LocalisationDto> CreateLocalisationAsync(LocalisationDto localisationDto)
+        public async Task<LocalisationDto?> CreateLocalisationAsync(LocalisationDto localisationDto)
         {
             // Convertit le DTO en entité
             var localisation = LocalisationMapper.ToEntity(localisationDto);
-
+            if (localisation == null)
+                return null;
             // Ajoute la localisation à la base de données
             _context.Localisations.Add(localisation);
             await _context.SaveChangesAsync();
-
             // Convertit l'entité en DTO pour la réponse
             return LocalisationMapper.ToDto(localisation);
         }
 
         // Met à jour une localisation existante
-        public async Task<LocalisationDto> UpdateLocalisationAsync(int id, LocalisationDto localisationDto)
+        public async Task<LocalisationDto?> UpdateLocalisationAsync(int id, LocalisationDto localisationDto)
         {
             // Récupère la localisation existante
             var localisation = await _context.Localisations.FindAsync(id);
             if (localisation == null)
             {
-                throw new Exception("Localisation non trouvée");
+                return null;
             }
 
             // Met à jour les propriétés de la localisation

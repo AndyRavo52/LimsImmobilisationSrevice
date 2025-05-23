@@ -34,44 +34,48 @@ namespace LimsImmobilisationService.Services
                 .Take(pageSize) // Prend un nombre limité d'éléments
                 .ToListAsync();
 
-            // Convertit les entités en DTOs
-            return objetsIndisponibilite.Select(ObjetIndisponibiliteMapper.ToDto);
+            // Convertit les entités en DTOs et filtre les nulls
+            return objetsIndisponibilite.Select(ObjetIndisponibiliteMapper.ToDto).Where(dto => dto != null).Cast<ObjetIndisponibiliteDto>();
         }
 
         // Récupère un objet d'indisponibilité par son ID
-        public async Task<ObjetIndisponibiliteDto> GetObjetIndisponibiliteByIdAsync(int id)
+        public async Task<ObjetIndisponibiliteDto?> GetObjetIndisponibiliteByIdAsync(int id)
         {
             var objetIndisponibilite = await _context.ObjetIndisponibilites.FindAsync(id);
             if (objetIndisponibilite == null)
             {
-                throw new Exception("Objet d'indisponibilité non trouvé");
+                return null;
             }
 
             return ObjetIndisponibiliteMapper.ToDto(objetIndisponibilite);
         }
 
         // Crée un nouvel objet d'indisponibilité
-        public async Task<ObjetIndisponibiliteDto> CreateObjetIndisponibiliteAsync(ObjetIndisponibiliteDto objetIndisponibiliteDto)
+        public async Task<ObjetIndisponibiliteDto?> CreateObjetIndisponibiliteAsync(ObjetIndisponibiliteDto objetIndisponibiliteDto)
         {
             // Convertit le DTO en entité
             var objetIndisponibilite = ObjetIndisponibiliteMapper.ToEntity(objetIndisponibiliteDto);
-
+            if (objetIndisponibilite == null)
+                return null;
             // Ajoute l'objet d'indisponibilité à la base de données
-            _context.ObjetIndisponibilites.Add(objetIndisponibilite);
+            if (objetIndisponibilite != null)
+                _context.ObjetIndisponibilites.Add(objetIndisponibilite);
             await _context.SaveChangesAsync();
-
             // Convertit l'entité en DTO pour la réponse
-            return ObjetIndisponibiliteMapper.ToDto(objetIndisponibilite);
+            var dto = ObjetIndisponibiliteMapper.ToDto(objetIndisponibilite);
+            if (dto == null)
+                return null;
+            return dto;
         }
 
         // Met à jour un objet d'indisponibilité existant
-        public async Task<ObjetIndisponibiliteDto> UpdateObjetIndisponibiliteAsync(int id, ObjetIndisponibiliteDto objetIndisponibiliteDto)
+        public async Task<ObjetIndisponibiliteDto?> UpdateObjetIndisponibiliteAsync(int id, ObjetIndisponibiliteDto objetIndisponibiliteDto)
         {
             // Récupère l'objet d'indisponibilité existant
             var objetIndisponibilite = await _context.ObjetIndisponibilites.FindAsync(id);
             if (objetIndisponibilite == null)
             {
-                throw new Exception("Objet d'indisponibilité non trouvé");
+                return null;
             }
 
             // Met à jour les propriétés de l'objet d'indisponibilité

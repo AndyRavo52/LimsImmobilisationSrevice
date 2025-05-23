@@ -34,7 +34,7 @@ namespace LimsImmobilisationService.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            return entreeImmobilisations.Select(EntreeImmobilisationMapper.ToDto);
+            return entreeImmobilisations.Select(EntreeImmobilisationMapper.ToDto).Where(dto => dto != null).Cast<EntreeImmobilisationDto>();
         }
 
         public async Task<EntreeImmobilisationDto> GetEntreeImmobilisationByIdAsync(int id)
@@ -61,25 +61,55 @@ namespace LimsImmobilisationService.Services
             return EntreeImmobilisationMapper.ToDto(entreeImmobilisation);
         }
 
-        public async Task<IEnumerable<EntreeImmobilisationDto>> GetEntreeImmobilisationsNonImmatriculeesAsync()
+        // public async Task<IEnumerable<EntreeImmobilisationDto>> GetEntreeImmobilisationsNonImmatriculeesAsync()
+        // {
+        //     var immatriculeesIds = await _context.ImmobilisationImmatriculations
+        //         .Select(ip => ip.IdEntreeImmobilisation)
+        //         .ToListAsync();
+
+        //     var entreeImmobilisations = await _context.EntreeImmobilisations
+        //         .Where(ei => !immatriculeesIds.Contains(ei.IdEntreeImmobilisation))
+        //         .Include(ei => ei.Immobilisation)
+        //         .ToListAsync();
+
+        //     return entreeImmobilisations.Select(EntreeImmobilisationMapper.ToDto);
+        // }
+        public async Task<IEnumerable<EntreeImmobilisationAvecResteDto>> GetEntreeImmobilisationsAvecImmatriculationsRestantesAsync()
+{
+    var entreeImmobilisationsAvecReste = await _context.EntreeImmobilisations
+        .Include(ei => ei.Immobilisation)
+        .GroupJoin(
+            _context.ImmobilisationImmatriculations,
+            ei => ei.IdEntreeImmobilisation,
+            ip => ip.IdEntreeImmobilisation,
+            (ei, ips) => new { EntreeImmobilisation = ei, CountImmatriculations = ips.Count() }
+        )
+        .Where(x => x.EntreeImmobilisation.Quantite > x.CountImmatriculations)
+        .Select(x => new EntreeImmobilisationAvecResteDto
         {
-            var immatriculeesIds = await _context.ImmobilisationImmatriculations
-                .Select(ip => ip.IdEntreeImmobilisation)
-                .ToListAsync();
+            IdEntreeImmobilisation = x.EntreeImmobilisation.IdEntreeImmobilisation,
+            Quantite = x.EntreeImmobilisation.Quantite,
+            PrixAchat = x.EntreeImmobilisation.PrixAchat,
+            DateEntree = x.EntreeImmobilisation.DateEntree,
+            BonReception = x.EntreeImmobilisation.BonReception,
+            BonDeCommande = x.EntreeImmobilisation.BonDeCommande,
+            NumeroFacture = x.EntreeImmobilisation.NumeroFacture,
+            IdFournisseur = x.EntreeImmobilisation.IdFournisseur,
+            Fournisseur = x.EntreeImmobilisation.Fournisseur != null ? FournisseurMapper.ToDto(x.EntreeImmobilisation.Fournisseur) : null,
+            IdImmobilisation = x.EntreeImmobilisation.IdImmobilisation,
+            Immobilisation = x.EntreeImmobilisation.Immobilisation != null ? ImmobilisationMapper.ToDto(x.EntreeImmobilisation.Immobilisation) : null,
+            ResteImmatriculations = x.EntreeImmobilisation.Quantite.HasValue ? (x.EntreeImmobilisation.Quantite.Value - x.CountImmatriculations) : 0
+        })
+        .ToListAsync();
 
-            var entreeImmobilisations = await _context.EntreeImmobilisations
-                .Where(ei => !immatriculeesIds.Contains(ei.IdEntreeImmobilisation))
-                .Include(ei => ei.Immobilisation)
-                .ToListAsync();
-
-            return entreeImmobilisations.Select(EntreeImmobilisationMapper.ToDto);
-        }
+    return entreeImmobilisationsAvecReste;
+}
 
         public async Task<Dictionary<string, decimal>> GetDepensesParMoisAsync(int annee)
         {
             return await _context.EntreeImmobilisations
                 .Where(ei => ei.DateEntree.HasValue && ei.DateEntree.Value.Year == annee)
-                .GroupBy(ei => new { ei.DateEntree.Value.Year, ei.DateEntree.Value.Month })
+                .GroupBy(ei => new { Year = ei.DateEntree!.Value.Year, Month = ei.DateEntree!.Value.Month })
                 .Select(g => new
                 {
                     Periode = $"{g.Key.Year}-{g.Key.Month:D2}",

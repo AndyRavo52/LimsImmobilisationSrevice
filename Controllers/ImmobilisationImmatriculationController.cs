@@ -96,6 +96,17 @@ namespace LimsImmobilisationService.Controllers
         public async Task<ActionResult<ApiResponse>> CreateImmobilisationImmatriculation([FromBody] ImmobilisationImmatriculationDto immobilisationImmatriculationDto)
         {
             var createdImmobilisationImmatriculation = await _immobilisationImmatriculationService.CreateImmobilisationImmatriculationAsync(immobilisationImmatriculationDto);
+            if (createdImmobilisationImmatriculation == null)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Data = null,
+                    ViewBag = null,
+                    IsSuccess = false,
+                    Message = "Erreur lors de la création de l'immatriculation d'immobilisation.",
+                    StatusCode = 400
+                });
+            }
             return CreatedAtAction(nameof(GetImmobilisationImmatriculation), new { id = createdImmobilisationImmatriculation.IdImmobilisationPropre }, new ApiResponse
             {
                 Data = createdImmobilisationImmatriculation,

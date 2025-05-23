@@ -4,8 +4,10 @@ namespace LimsImmobilisationService.Mappers
 {
     public static class ObjetIndisponibiliteMapper
     {
-        public static ObjetIndisponibiliteDto ToDto(ObjetIndisponibilite entity)
+        public static ObjetIndisponibiliteDto? ToDto(ObjetIndisponibilite? entity)
         {
+            if (entity == null)
+                return null;
             return new ObjetIndisponibiliteDto
             {
                 IdObjetIndisponibilite = entity.IdObjetIndisponibilite,
@@ -13,12 +15,14 @@ namespace LimsImmobilisationService.Mappers
             };
         }
 
-        public static ObjetIndisponibilite ToEntity(ObjetIndisponibiliteDto dto)
+        public static ObjetIndisponibilite? ToEntity(ObjetIndisponibiliteDto? dto)
         {
+            if (dto == null)
+                return null;
             return new ObjetIndisponibilite
             {
                 IdObjetIndisponibilite = dto.IdObjetIndisponibilite,
-                Designation = dto.Designation
+                Designation = dto.Designation ?? string.Empty
             };
         }
     }

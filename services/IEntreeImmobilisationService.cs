@@ -10,7 +10,8 @@ namespace LimsImmobilisationService.Services
         Task<IEnumerable<EntreeImmobilisationDto>> GetEntreeImmobilisationsAsync(int pageIndex, int pageSize);
         Task<EntreeImmobilisationDto> GetEntreeImmobilisationByIdAsync(int id);
         Task<EntreeImmobilisationDto> CreateEntreeImmobilisationAsync(EntreeImmobilisationDto entreeImmobilisationDto);
-        Task<IEnumerable<EntreeImmobilisationDto>> GetEntreeImmobilisationsNonImmatriculeesAsync();
+        // Task<IEnumerable<EntreeImmobilisationDto>> GetEntreeImmobilisationsNonImmatriculeesAsync();
+        Task<IEnumerable<EntreeImmobilisationAvecResteDto>> GetEntreeImmobilisationsAvecImmatriculationsRestantesAsync();
         Task<Dictionary<string, decimal>> GetDepensesParMoisAsync(int annee);
     }
 }

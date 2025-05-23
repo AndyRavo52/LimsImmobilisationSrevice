@@ -8,7 +8,7 @@ namespace LimsImmobilisationService.Services
     {
         Task<int> CountImmobilisationImmatriculationsAsync();
         Task<IEnumerable<ImmobilisationImmatriculationDto>> GetImmobilisationImmatriculationsAsync(int pageIndex, int pageSize);
-        Task<ImmobilisationImmatriculationDto> GetImmobilisationImmatriculationByIdAsync(int id);
-        Task<ImmobilisationImmatriculationDto> CreateImmobilisationImmatriculationAsync(ImmobilisationImmatriculationDto immobilisationImmatriculationDto);
+        Task<ImmobilisationImmatriculationDto?> GetImmobilisationImmatriculationByIdAsync(int id);
+        Task<ImmobilisationImmatriculationDto?> CreateImmobilisationImmatriculationAsync(ImmobilisationImmatriculationDto immobilisationImmatriculationDto);
     }
 }

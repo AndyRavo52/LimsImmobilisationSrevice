@@ -8,24 +8,22 @@ namespace LimsImmobilisationService.Mappers
         // Convertit une entité Indisponibilite en IndisponibiliteDto
         public static IndisponibiliteDto ToDto(Indisponibilite indisponibilite)
         {
-            return new IndisponibiliteDto
+                return new IndisponibiliteDto
+        {
+            IdIndisponibilite = indisponibilite.IdIndisponibilite,
+            DateDebut = indisponibilite.DateDebut,
+            DateFin = indisponibilite.DateFin,
+            IdImmobilisationPropre = indisponibilite.IdImmobilisationPropre,
+            IdObjetIndisponibilite = indisponibilite.IdObjetIndisponibilite,
+            ImmobilisationImmatriculation = indisponibilite.ImmobilisationImmatriculation != null 
+                ? ImmobilisationImmatriculationMapper.ToDto(indisponibilite.ImmobilisationImmatriculation) 
+                : null,
+            ObjetIndisponibilite = indisponibilite.ObjetIndisponibilite != null ? new ObjetIndisponibiliteDto
             {
-                IdIndisponibilite = indisponibilite.IdIndisponibilite,
-                DateDebut = indisponibilite.DateDebut,
-                DateFin = indisponibilite.DateFin,
-                IdImmobilisationPropre = indisponibilite.IdImmobilisationPropre,
-                IdObjetIndisponibilite = indisponibilite.IdObjetIndisponibilite,
-                ImmobilisationImmatriculation = indisponibilite.ImmobilisationImmatriculation != null ? new ImmobilisationImmatriculationDto
-                {
-                    IdImmobilisationPropre = indisponibilite.ImmobilisationImmatriculation.IdImmobilisationPropre
-                    // Ajoutez d'autres propriétés si elles existent dans ImmobilisationImmatriculation
-                } : null,
-                ObjetIndisponibilite = indisponibilite.ObjetIndisponibilite != null ? new ObjetIndisponibiliteDto
-                {
-                    IdObjetIndisponibilite = indisponibilite.ObjetIndisponibilite.IdObjetIndisponibilite,
-                    Designation = indisponibilite.ObjetIndisponibilite.Designation
-                } : null
-            };
+                IdObjetIndisponibilite = indisponibilite.ObjetIndisponibilite.IdObjetIndisponibilite,
+                Designation = indisponibilite.ObjetIndisponibilite.Designation
+            } : null
+        };
         }
 
         // Convertit un IndisponibiliteDto en entité Indisponibilite
