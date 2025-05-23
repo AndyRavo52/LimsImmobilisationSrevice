@@ -27,19 +27,20 @@ namespace LimsImmobilisationService.Services
         }
 
         // Récupère une liste paginée d'indisponibilités
-        public async Task<IEnumerable<IndisponibiliteDto>> GetIndisponibilitesAsync(int pageIndex, int pageSize)
-        {
-            var indisponibilites = await _context.Indisponibilites
-                .Include(i => i.ImmobilisationImmatriculation) // Charge l'immatriculation associée
-                .Include(i => i.ObjetIndisponibilite) // Charge l'objet d'indisponibilité associé
-                .OrderBy(i => i.DateDebut) // Trie par date de début
-                .Skip((pageIndex - 1) * pageSize) // Saute les éléments des pages précédentes
-                .Take(pageSize) // Prend un nombre limité d'éléments
-                .ToListAsync();
+      public async Task<IEnumerable<IndisponibiliteDto>> GetIndisponibilitesAsync(int pageIndex, int pageSize)
+{
+    var indisponibilites = await _context.Indisponibilites
+        .Include(i => i.ImmobilisationImmatriculation)
+            .ThenInclude(im => im.EntreeImmobilisation)
+                .ThenInclude(ei => ei.Immobilisation)
+        .Include(i => i.ObjetIndisponibilite)
+        .OrderBy(i => i.DateDebut)
+        .Skip((pageIndex - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
 
-            // Convertit les entités en DTOs
-            return indisponibilites.Select(IndisponibiliteMapper.ToDto);
-        }
+    return indisponibilites.Select(IndisponibiliteMapper.ToDto);
+}
 
         // Récupère une indisponibilité par son ID
         public async Task<IndisponibiliteDto> GetIndisponibiliteByIdAsync(int id)
@@ -81,26 +82,30 @@ namespace LimsImmobilisationService.Services
         }
 
         // Dans IndisponibiliteService.cs
-public async Task<IEnumerable<ImmobilisationImmatriculationDto>> GetAvailableImmobilisationsImmatriculeesAsync()
-{
-    var today = DateTime.Today;
+        public async Task<IEnumerable<ImmobilisationImmatriculationDto>> GetAvailableImmobilisationsImmatriculeesAsync()
+        {
+            var today = DateTime.Today;
 
-    // Récupérer les IDs des immobilisations actuellement indisponibles
-    var indisponiblesIds = await _context.Indisponibilites
-        .Where(i => i.DateFin >= today)
-        .Select(i => i.IdImmobilisationPropre)
-        .Distinct()
-        .ToListAsync();
+            // Récupérer les IDs des immobilisations actuellement indisponibles
+            var indisponiblesIds = await _context.Indisponibilites
+                .Where(i => i.DateFin >= today)
+                .Select(i => i.IdImmobilisationPropre)
+                .Distinct()
+                .ToListAsync();
 
-    // Récupérer les immobilisations immatriculées qui ne sont pas dans la liste des indisponibles
-    var availableImmobilisations = await _context.ImmobilisationImmatriculations
-        .Where(im => !indisponiblesIds.Contains(im.IdImmobilisationPropre))
-        .Include(im => im.EntreeImmobilisation)
-            .ThenInclude(ei => ei.Immobilisation)
-        .ToListAsync();
+            // Récupérer les immobilisations immatriculées qui ne sont pas dans la liste des indisponibles
+            var availableImmobilisations = await _context.ImmobilisationImmatriculations
+                .Where(im => !indisponiblesIds.Contains(im.IdImmobilisationPropre))
+                .Include(im => im.EntreeImmobilisation)
+                    .ThenInclude(ei => ei.Immobilisation)
+                .ToListAsync();
 
-    // Convertir en DTO
-    return availableImmobilisations.Select(ImmobilisationImmatriculationMapper.ToDto);
-}
+            // Convertir en DTO
+            return availableImmobilisations
+                .Where(im => im != null)
+                .Select(im => ImmobilisationImmatriculationMapper.ToDto(im)!)
+                .Where(dto => dto != null)
+                .Cast<ImmobilisationImmatriculationDto>();
+        }
     }
 }

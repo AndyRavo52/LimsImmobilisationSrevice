@@ -13,13 +13,13 @@ namespace LimsImmobilisationService.Services
         Task<IEnumerable<ObjetIndisponibiliteDto>> GetObjetsIndisponibiliteAsync(int pageIndex, int pageSize);
 
         // Récupère un objet d'indisponibilité par son ID
-        Task<ObjetIndisponibiliteDto> GetObjetIndisponibiliteByIdAsync(int id);
+        Task<ObjetIndisponibiliteDto?> GetObjetIndisponibiliteByIdAsync(int id);
 
         // Crée un nouvel objet d'indisponibilité
-        Task<ObjetIndisponibiliteDto> CreateObjetIndisponibiliteAsync(ObjetIndisponibiliteDto objetIndisponibiliteDto);
+        Task<ObjetIndisponibiliteDto?> CreateObjetIndisponibiliteAsync(ObjetIndisponibiliteDto objetIndisponibiliteDto);
 
         // Met à jour un objet d'indisponibilité existant
-        Task<ObjetIndisponibiliteDto> UpdateObjetIndisponibiliteAsync(int id, ObjetIndisponibiliteDto objetIndisponibiliteDto);
+        Task<ObjetIndisponibiliteDto?> UpdateObjetIndisponibiliteAsync(int id, ObjetIndisponibiliteDto objetIndisponibiliteDto);
 
         // Supprime un objet d'indisponibilité
         Task<bool> DeleteObjetIndisponibiliteAsync(int id);

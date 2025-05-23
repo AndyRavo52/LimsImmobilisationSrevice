@@ -5,7 +5,7 @@ namespace LimsImmobilisationService.Mappers
 {
     public static class ImmobilisationImmatriculationMapper
     {
-        public static ImmobilisationImmatriculationDto ToDto(ImmobilisationImmatriculation immobilisationImmatriculation)
+        public static ImmobilisationImmatriculationDto? ToDto(ImmobilisationImmatriculation? immobilisationImmatriculation)
         {
             if (immobilisationImmatriculation == null)
                 return null;
@@ -16,10 +16,6 @@ namespace LimsImmobilisationService.Mappers
                 Matricule = immobilisationImmatriculation.Matricule,
                 Remarque = immobilisationImmatriculation.Remarque,
                 EtatInitiale = immobilisationImmatriculation.EtatInitiale,
-                // IdImmobilisation = immobilisationImmatriculation.IdImmobilisation,
-                // Immobilisation = immobilisationImmatriculation.Immobilisation != null 
-                    // ? ImmobilisationMapper.ToDto(immobilisationImmatriculation.Immobilisation) 
-                    // : null,
                 IdEntreeImmobilisation = immobilisationImmatriculation.IdEntreeImmobilisation,
                 EntreeImmobilisation = immobilisationImmatriculation.EntreeImmobilisation != null 
                     ? EntreeImmobilisationMapper.ToDto(immobilisationImmatriculation.EntreeImmobilisation) 
@@ -27,7 +23,7 @@ namespace LimsImmobilisationService.Mappers
             };
         }
 
-        public static ImmobilisationImmatriculation ToEntity(ImmobilisationImmatriculationDto immobilisationImmatriculationDto)
+        public static ImmobilisationImmatriculation? ToEntity(ImmobilisationImmatriculationDto? immobilisationImmatriculationDto)
         {
             if (immobilisationImmatriculationDto == null)
                 return null;

@@ -99,6 +99,17 @@ namespace LimsImmobilisationService.Controllers
         public async Task<ActionResult<ApiResponse>> CreateObjetIndisponibilite([FromBody] ObjetIndisponibiliteDto objetIndisponibiliteDto)
         {
             var createdObjet = await _objetIndisponibiliteService.CreateObjetIndisponibiliteAsync(objetIndisponibiliteDto);
+            if (createdObjet == null)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Data = null,
+                    ViewBag = null,
+                    IsSuccess = false,
+                    Message = "Erreur lors de la création de l'objet d'indisponibilité.",
+                    StatusCode = 400
+                });
+            }
             return CreatedAtAction(nameof(GetObjetIndisponibilite), new { id = createdObjet.IdObjetIndisponibilite }, new ApiResponse
             {
                 Data = createdObjet,

@@ -51,10 +51,10 @@ namespace LimsImmobilisationService.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            return assignations.Select(AssignationMapper.ToDto);
+            return assignations.Select(AssignationMapper.ToDto).Where(dto => dto != null).Cast<AssignationDto>();
         }
 
-        public async Task<AssignationDto> GetAssignationByIdAsync(int id)
+        public async Task<AssignationDto?> GetAssignationByIdAsync(int id)
         {
             var assignation = await _context.Assignations
                 .Include(a => a.Employe)
@@ -66,7 +66,7 @@ namespace LimsImmobilisationService.Services
 
             if (assignation == null)
             {
-                throw new Exception("Assignation non trouvée");
+                return null;
             }
 
             return AssignationMapper.ToDto(assignation);
@@ -90,6 +90,8 @@ namespace LimsImmobilisationService.Services
 
             // Utilisation de ToEntitySimple pour éviter les entités imbriquées
             var assignation = AssignationMapper.ToEntitySimple(assignationDto);
+            if (assignation == null)
+                throw new Exception("Erreur de conversion du DTO en entité");
 
             _context.Assignations.Add(assignation);
             await _context.SaveChangesAsync();
@@ -103,7 +105,14 @@ namespace LimsImmobilisationService.Services
                 .Include(a => a.Localisation)
                 .FirstOrDefaultAsync(a => a.IdAssignation == assignation.IdAssignation);
 
-            return AssignationMapper.ToDto(createdAssignation);
+            if (createdAssignation == null)
+                throw new Exception("Erreur lors de la récupération de l'assignation créée");
+
+            var dto = AssignationMapper.ToDto(createdAssignation);
+            if (dto == null)
+                throw new Exception("Erreur de conversion de l'entité en DTO");
+
+            return dto;
         }
 
         public async Task<EmployeDto> GetEmployeByMatriculeAsync(string matricule)
@@ -119,12 +128,12 @@ namespace LimsImmobilisationService.Services
             return EmployeMapper.ToDto(employe);
         }
 
-        public async Task<AssignationDto> UpdateAssignationAsync(int id, AssignationDto assignationDto)
+        public async Task<AssignationDto?> UpdateAssignationAsync(int id, AssignationDto assignationDto)
         {
             var assignation = await _context.Assignations.FindAsync(id);
             if (assignation == null)
             {
-                throw new Exception("Assignation non trouvée");
+                return null;
             }
 
             // Validation des IDs pour la mise à jour
@@ -151,7 +160,14 @@ namespace LimsImmobilisationService.Services
                 .Include(a => a.Localisation)
                 .FirstOrDefaultAsync(a => a.IdAssignation == id);
 
-            return AssignationMapper.ToDto(updatedAssignation);
+            if (updatedAssignation == null)
+                return null;
+
+            var dto = AssignationMapper.ToDto(updatedAssignation);
+            if (dto == null)
+                return null;
+
+            return dto;
         }
 
         public async Task<IEnumerable<ImmobilisationImmatriculationDto>> GetAvailableImmobilisationsAsync()
@@ -167,7 +183,7 @@ namespace LimsImmobilisationService.Services
                 .Where(ii => !assignedIds.Contains(ii.IdImmobilisationPropre))
                 .ToListAsync();
 
-            return availableImmobilisations.Select(ImmobilisationImmatriculationMapper.ToDto);
+            return availableImmobilisations.Select(ImmobilisationImmatriculationMapper.ToDto).Where(dto => dto != null).Cast<ImmobilisationImmatriculationDto>();
         }
 
         public async Task<IEnumerable<AssignationDto>> SearchAssignationsAsync(string searchTerm)
@@ -181,7 +197,7 @@ namespace LimsImmobilisationService.Services
                 .Where(a => a.Employe != null && (a.Employe.Nom + " " + a.Employe.Prenom).Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .ToListAsync();
 
-            return assignations.Select(AssignationMapper.ToDto);
+            return assignations.Select(AssignationMapper.ToDto).Where(dto => dto != null).Cast<AssignationDto>();
         }
 
         public async Task<IEnumerable<AssignationDto>> SearchAssignationsAsync(string searchTerm, int pageIndex, int pageSize)
@@ -205,7 +221,7 @@ namespace LimsImmobilisationService.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            return assignations.Select(AssignationMapper.ToDto);
+            return assignations.Select(AssignationMapper.ToDto).Where(dto => dto != null).Cast<AssignationDto>();
         }
 
         public async Task<IEnumerable<LocalisationDto>> GetLocalisationsAsync()
@@ -214,7 +230,7 @@ namespace LimsImmobilisationService.Services
                 .OrderBy(l => l.Designation)
                 .ToListAsync();
 
-            return localisations.Select(LocalisationMapper.ToDto);
+            return localisations.Select(LocalisationMapper.ToDto).Where(dto => dto != null).Cast<LocalisationDto>();
         }
 
         public async Task<IEnumerable<ImmobilisationImmatriculationDto>> GetAssignedImmobilisationsAsync()
@@ -225,12 +241,17 @@ namespace LimsImmobilisationService.Services
                 .ThenInclude(ei => ei.Immobilisation)
                 .Select(a => a.ImmobilisationImmatriculation)
                 .Distinct()
+                .OrderBy(ii => ii != null && ii.EntreeImmobilisation != null && ii.EntreeImmobilisation.Immobilisation != null ? ii.EntreeImmobilisation.Immobilisation.Designation : string.Empty)
                 .ToListAsync();
 
-            return assignedImmobilisations.Select(ImmobilisationImmatriculationMapper.ToDto);
+            return assignedImmobilisations
+                .Where(ii => ii != null)
+                .Select(ii => ImmobilisationImmatriculationMapper.ToDto(ii)!)
+                .Where(dto => dto != null)
+                .Cast<ImmobilisationImmatriculationDto>();
         }
 
-        public async Task<AssignationDto> GetCurrentAssignationByImmobilisationIdAsync(int idImmobilisationPropre)
+        public async Task<AssignationDto?> GetCurrentAssignationByImmobilisationIdAsync(int idImmobilisationPropre)
         {
             var assignation = await _context.Assignations
                 .Include(a => a.Employe)
